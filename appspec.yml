@@ -1,0 +1,55 @@
+version: 0.0
+os: linux
+
+# ──────────────────────────────────────────────────────────────
+# AWS CodeDeploy AppSpec for aitrillion-appv2
+# ──────────────────────────────────────────────────────────────
+# EC2 Folder Structure:
+#   /home/ec2-user/
+#   ├── httpdocs/          ← Running production application
+#   ├── httpdocs_temp/     ← Temporary folder (CodeDeploy copies here)
+#   └── releases/          ← Backup folder with timestamped backups
+#
+# ⚠️  IMPORTANT: Update /home/ec2-user below to match your actual
+#     base directory on EC2 if it's different.
+# ──────────────────────────────────────────────────────────────
+
+files:
+  # CodeDeploy copies the built artifact to httpdocs_temp first
+  # (NOT directly to httpdocs — we swap it in AfterInstall)
+  - source: /
+    destination: /srv/aitrillion.com/subdomains/ai-dev-front2/httpdocs_temp
+
+permissions:
+  - object: /srv/aitrillion.com/subdomains/ai-dev-front2/httpdocs_temp
+    owner: ai-dev-front2
+    group: ai-dev-front2
+    mode: 755
+    type:
+      - directory
+      - file
+
+hooks:
+  # ── Step 5 of your script: Stop PM2 ──
+  ApplicationStop:
+    - location: appspec-script/application_stop.sh
+      timeout: 60
+      runas: ai-dev-front2
+
+  # ── Step 4 of your script: Prepare temp directory ──
+  BeforeInstall:
+    - location: appspec-script/before_install.sh
+      timeout: 60
+      runas: ai-dev-front2
+
+  # ── Steps 6 & 7 of your script: Backup old → Swap new ──
+  AfterInstall:
+    - location: appspec-script/after_install.sh
+      timeout: 300
+      runas: ai-dev-front2
+
+  # ── Steps 8 & 9 of your script: Start PM2 + Cleanup backups ──
+  ApplicationStart:
+    - location: appspec-script/application_start.sh
+      timeout: 120
+      runas: ai-dev-front2

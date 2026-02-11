@@ -1,0 +1,58 @@
+version: 0.2
+
+# ──────────────────────────────────────────────────────────────
+# AWS CodeBuild Buildspec for Next.js (aitrillion-appv2)
+# ──────────────────────────────────────────────────────────────
+# This replaces Steps 1-3 of your manual deployment:
+#   1. git pull         → CodePipeline handles this automatically
+#   2. npm ci           → install phase below
+#   3. npm run build    → build phase below
+# ──────────────────────────────────────────────────────────────
+
+env:
+  parameter-store:
+    # Pull .env content from AWS SSM Parameter Store
+    ENV_FILE_CONTENT: "/aitrillion/dev/env-ai-dev-front2"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "=== Install Phase ==="
+      - node --version
+      - npm --version
+      - npm ci --prefer-offline
+
+  pre_build:
+    commands:
+      - echo "=== Pre-Build Phase ==="
+      # Write .env file from SSM parameter
+      - echo "$ENV_FILE_CONTENT" > .env
+      - echo ".env file created — line count:" && wc -l .env
+
+  build:
+    commands:
+      - echo "=== Build Phase ==="
+      - echo "Build started on $(date)"
+
+      # Match your existing build command with increased memory
+      #- NODE_OPTIONS="--max-old-space-size=6144" npm run build
+      - npm run build
+
+      - echo "Build completed on $(date)"
+
+  post_build:
+    commands:
+      - echo "=== Post-Build Phase ==="
+      - echo "Build artifact ready for CodeDeploy"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: '.'
+
+cache:
+  paths:
+    - 'node_modules/**/*'
+    - '.next/cache/**/*'
