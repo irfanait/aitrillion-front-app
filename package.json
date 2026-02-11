@@ -1,0 +1,70 @@
+{
+  "name": "aitrillion-application-front",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@ant-design/nextjs-registry": "^1.0.2",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@reduxjs/toolkit": "^2.6.1",
+    "antd": "^5.24.9",
+    "aws-sdk": "^2.1692.0",
+    "aws4": "^1.13.2",
+    "aws4-axios": "^3.4.0",
+    "axios": "^1.8.4",
+    "babel-plugin-styled-components": "^2.1.4",
+    "dayjs": "^1.11.13",
+    "formik": "^2.4.6",
+    "froala-editor": "^4.7.1",
+    "html-react-parser": "^5.2.6",
+    "jquery": "^3.7.1",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "next": "15.3.1",
+    "next-redux-wrapper": "^8.1.0",
+    "quill": "^2.0.3",
+    "rc-util": "^5.32.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-froala-wysiwyg": "^4.7.1",
+    "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "recharts": "^2.15.3",
+    "styled-components": "^6.1.17",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "autoprefixer": "^10.4.21",
+    "env-cmd": "^10.1.0",
+    "eslint": "^9.24.0",
+    "eslint-config-next": "15.2.4",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^4.1.0"
+  }
+}

@@ -1,0 +1,21 @@
+.ant-menu-submenu.ant-menu-submenu-popup
+  ul.ant-menu.ant-menu-sub.ant-menu-vertical
+  .ant-menu-title-content {
+  padding: 2px 10px;
+  color: red !important;
+}
+.ant-menu-submenu.ant-menu-submenu-popup
+  ul.ant-menu.ant-menu-sub.ant-menu-vertical
+  .ant-menu-title-content
+  a {
+  font-size: 14px;
+  color: red !important;
+  font-weight: 400;
+}
+.ant-menu-submenu.ant-menu-submenu-popup
+  ul.ant-menu.ant-menu-sub.ant-menu-vertical
+  .ant-menu-title-content
+  a
+  span {
+  color: red !important;
+}

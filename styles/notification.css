@@ -1,0 +1,47 @@
+/* Notification Colors (global token properties) */
+:root {
+  --ant-notification-success-bg: #e6f7e6;
+  --ant-notification-success-border: #b7eb8f;
+  --ant-notification-success-icon: #52c41a;
+  --ant-notification-info-bg: #e6f4ff;
+  --ant-notification-info-border: #91d5ff;
+  --ant-notification-info-icon: #1890ff;
+  --ant-notification-warning-bg: #fffbe6;
+  --ant-notification-warning-border: #ffe58f;
+  --ant-notification-warning-icon: #faad14;
+  --ant-notification-error-bg: #fff2f0;
+  --ant-notification-error-border: #ffccc7;
+  --ant-notification-error-icon: #ff4d4f;
+}
+
+.ant-notification-notice-success {
+  background: var(--ant-notification-success-bg) !important;
+  border-left: 4px solid var(--ant-notification-success-border) !important;
+}
+.ant-notification-notice-success .anticon {
+  color: var(--ant-notification-success-icon) !important;
+}
+
+.ant-notification-notice-info {
+  background: var(--ant-notification-info-bg) !important;
+  border-left: 4px solid var(--ant-notification-info-border) !important;
+}
+.ant-notification-notice-info .anticon {
+  color: var(--ant-notification-info-icon) !important;
+}
+
+.ant-notification-notice-warning {
+  background: var(--ant-notification-warning-bg) !important;
+  border-left: 4px solid var(--ant-notification-warning-border) !important;
+}
+.ant-notification-notice-warning .anticon {
+  color: var(--ant-notification-warning-icon) !important;
+}
+
+.ant-notification-notice-error {
+  background: var(--ant-notification-error-bg) !important;
+  border-left: 4px solid var(--ant-notification-error-border) !important;
+}
+.ant-notification-notice-error .anticon {
+  color: var(--ant-notification-error-icon) !important;
+}

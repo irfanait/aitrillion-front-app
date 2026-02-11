@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Child Window</title>
+  </head>
+  <body style="text-align: center; margin-top: 50px">
+    <h2>Child Window (Template Editor)</h2>
+    <button id="saveExitBtn" style="padding: 10px 20px; font-size: 16px">
+      Save & Exit
+    </button>
+
+    <script>
+      document.getElementById('saveExitBtn').addEventListener('click', () => {
+        // Example data to send back
+        const dataToSend = {
+          templateId: '123',
+          savedAt: new Date().toISOString(),
+          content: 'This is dummy template content',
+        };
+
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: 'SAVE_AND_EXIT', payload: dataToSend },
+            '*' // For demo: use '*' to allow all origins, but specify origin in production
+          );
+          alert('Message sent to parent. Closing window...');
+          window.close(); // optionally close child window after sending
+        } else {
+          alert('No opener window found');
+        }
+      });
+    </script>
+  </body>
+</html>
