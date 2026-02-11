@@ -22,7 +22,7 @@ phases:
       - echo "=== Install Phase ==="
       - node --version
       - npm --version
-      - npm install --prefer-offline
+      - npm ci --prefer-offline
 
   pre_build:
     commands:
@@ -38,7 +38,7 @@ phases:
 
       # Match your existing build command with increased memory
       #- NODE_OPTIONS="--max-old-space-size=6144" npm run build
-      - npm run build
+      -  npm run build
 
       - echo "Build completed on $(date)"
 
