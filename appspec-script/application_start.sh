@@ -13,7 +13,8 @@ echo "=== [Step 8] Starting PM2 app ==="
 
 cd "$BASE_DIR/httpdocs"
 
-export NODE_ENV=production
+export NODE_ENV=development
+export PM2_HOME="$BASE_DIR/.pm2"
 PORT=3005 pm2 start npm --name "ai-dev-front2" -- start
 
 echo "PM2 app started."
