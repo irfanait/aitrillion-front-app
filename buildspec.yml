@@ -1,24 +1,10 @@
 version: 0.2
 
-# ──────────────────────────────────────────────────────────────
-# AWS CodeBuild Buildspec — Parameterized for All Environments
-# ──────────────────────────────────────────────────────────────
-# This single buildspec works for dev1, dev2, dev3, prod, etc.
-# Each pipeline overrides the variables below in CodeBuild config.
-#
-# Pipeline Examples:
-#   ai-dev-front1-pipeline → ENV_NAME=ai-dev-front1, APP_PORT=3001, BASE_DIR=/srv/aitrillion.com/subdomains/ai-dev-front1
-#   ai-dev-front2-pipeline → ENV_NAME=ai-dev-front2, APP_PORT=3005, BASE_DIR=/srv/aitrillion.com/subdomains/ai-dev-front2
-#   ai-prod-pipeline       → ENV_NAME=ai-prod,       APP_PORT=3000, BASE_DIR=/srv/aitrillion.com/subdomains/ai-prod
-# ──────────────────────────────────────────────────────────────
-
 env:
   variables:
-    # ── Override these per pipeline ──
     ENV_NAME: "ai-dev-front2"
     APP_PORT: "3005"
     BASE_DIR: "/srv/aitrillion.com/subdomains/ai-dev-front2"
-
   exported-variables:
     - ENV_NAME
     - APP_PORT
@@ -30,7 +16,7 @@ phases:
       nodejs: 20
     commands:
       - echo "=== Install Phase ==="
-      - echo "Environment: $ENV_NAME | Port: $APP_PORT | Path: $BASE_DIR"
+      - echo "Environment - $ENV_NAME | Port - $APP_PORT | Path - $BASE_DIR"
       - node --version
       - npm --version
       - npm ci --prefer-offline
@@ -38,25 +24,20 @@ phases:
   pre_build:
     commands:
       - echo "=== Pre-Build Phase ==="
-      # Pull .env from SSM Parameter Store using ENV_NAME
       - echo "Fetching .env from SSM parameter /aitrillion/${ENV_NAME}/env-file"
       - aws ssm get-parameter --name "/aitrillion/${ENV_NAME}/env-file" --with-decryption --query "Parameter.Value" --output text > .env
-      - echo ".env file created — line count:" && wc -l .env
+      - echo ".env file created - line count:" && wc -l .env
 
   build:
     commands:
       - echo "=== Build Phase ==="
       - echo "Build started on $(date)"
-
-      # Build with increased memory
-      #- NODE_OPTIONS="--max-old-space-size=6144" npm run build
       - npm run build
       - echo "Build completed on $(date)"
 
   post_build:
     commands:
       - echo "=== Post-Build Phase ==="
-      # Write deployment config that scripts can read on EC2
       - echo "export ENV_NAME=\"$ENV_NAME\"" > deployment_config.sh
       - echo "export APP_PORT=\"$APP_PORT\"" >> deployment_config.sh
       - echo "export BASE_DIR=\"$BASE_DIR\"" >> deployment_config.sh
@@ -65,10 +46,10 @@ phases:
 
 artifacts:
   files:
-    - '**/*'
-  base-directory: '.'
+    - "**/*"
+  base-directory: "."
 
 cache:
   paths:
-    - 'node_modules/**/*'
-    - '.next/cache/**/*'
+    - "node_modules/**/*"
+    - ".next/cache/**/*"
