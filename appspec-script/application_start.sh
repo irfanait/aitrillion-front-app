@@ -2,33 +2,43 @@
 set -e
 
 # ──────────────────────────────────────────────────────────────
-# Steps 8 & 9: Start PM2 app + Cleanup old backups
-# (Mirrors your manual script's Steps 8 and 9)
+# ApplicationStart: Start PM2 + Cleanup
+# ──────────────────────────────────────────────────────────────
+# Downtime ends here — PM2 starts the app.
 # ──────────────────────────────────────────────────────────────
 
-BASE_DIR="/srv/aitrillion.com/subdomains/ai-dev-front2"
+# Load deployment config (written by after_install.sh)
+CONFIG_FILE="/tmp/deployment_config_current.sh"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "ERROR: No deployment config found at $CONFIG_FILE!"
+    exit 1
+fi
 
-# ── Step 8: Start PM2 app ──
-echo "=== [Step 8] Starting PM2 app ==="
+source "$CONFIG_FILE"
+
+echo "=== Starting: $ENV_NAME | Port: $APP_PORT | Path: $BASE_DIR ==="
 
 cd "$BASE_DIR/httpdocs"
 
-export NODE_ENV=development
 export PM2_HOME="$BASE_DIR/.pm2"
+export NODE_ENV=production
+
+# Fix symlinks and native modules after deployment
+echo "Running npm rebuild..."
 npm rebuild
-PORT=3005 pm2 start npm --name "ai-dev-front2" -- start
+
+# Start the app with PM2
+PORT=$APP_PORT pm2 start npm --name "$ENV_NAME" -- start
+pm2 save
 
 echo "PM2 app started."
 pm2 status
 
-# Go back to base directory
-cd "$BASE_DIR"
-
-# ── Step 9: Cleanup old backups (keep last 5) ──
-echo "=== [Step 9] Cleaning older backups (keeping last 5) ==="
+# ── Cleanup old backups (keep last 5) ──
+echo "=== Cleaning older backups (keeping last 5) ==="
 
 cd "$BASE_DIR/releases"
 ls -1dt backup_* 2>/dev/null | tail -n +6 | xargs -I {} rm -rf "{}" || true
-cd "$BASE_DIR"
 
 echo "=== Deployment completed successfully! ==="
+echo "App: $ENV_NAME | Port: $APP_PORT | Path: $BASE_DIR/httpdocs"

@@ -1,12 +1,10 @@
 #!/bin/bash
 # ──────────────────────────────────────────────────────────────
-# Step 5: Stop PM2 app
-# (Mirrors your manual script's Step 5)
+# ApplicationStop — NO-OP (intentional)
+# ──────────────────────────────────────────────────────────────
+# We do NOT stop PM2 here. The app keeps running while CodeDeploy
+# prepares and copies files. PM2 is stopped later in AfterInstall
+# right before the folder swap — minimizing downtime.
 # ──────────────────────────────────────────────────────────────
 
-echo "=== [Step 5] Stopping PM2 app ==="
-
-pm2 stop ai-dev-front2 || true
-pm2 delete ai-dev-front2 || true
-
-echo "PM2 app stopped."
+echo "=== ApplicationStop: Skipping (PM2 will stop in AfterInstall) ==="

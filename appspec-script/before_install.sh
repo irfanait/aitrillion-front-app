@@ -2,24 +2,18 @@
 set -e
 
 # ──────────────────────────────────────────────────────────────
-# Step 4: Prepare temporary folder
-# (Mirrors your manual script's Step 4)
-#
-# Clean up httpdocs_temp if it exists from a previous failed deploy.
-# CodeDeploy will then copy the new build artifact into httpdocs_temp.
+# BeforeInstall: Prepare directories
+# ──────────────────────────────────────────────────────────────
+# App is still running at this point. We just prepare directories
+# and clean up temp files from any previous deployment.
 # ──────────────────────────────────────────────────────────────
 
-BASE_DIR="/srv/aitrillion.com/subdomains/ai-dev-front2"
+echo "=== BeforeInstall: Preparing directories ==="
 
-echo "=== [Step 4] Preparing temp build directory ==="
-
-# Remove stale temp folder if it exists
-if [ -d "$BASE_DIR/httpdocs_temp" ]; then
-    rm -rf "$BASE_DIR/httpdocs_temp"
-    echo "Cleaned up existing httpdocs_temp"
+# Clean up previous temp artifact if it exists
+if [ -d "/tmp/codedeploy_artifact" ]; then
+    rm -rf /tmp/codedeploy_artifact
+    echo "Cleaned up previous temp artifact"
 fi
 
-# Ensure releases directory exists
-mkdir -p "$BASE_DIR/releases"
-
-echo "Temp directory ready. CodeDeploy will now copy files to httpdocs_temp."
+echo "Ready for CodeDeploy to copy new artifact."

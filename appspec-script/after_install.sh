@@ -2,19 +2,40 @@
 set -e
 
 # ──────────────────────────────────────────────────────────────
-# Steps 6 & 7: Rotate old build + Deploy new build
-# (Mirrors your manual script's Steps 6 and 7)
+# AfterInstall: Stop PM2 → Backup → Swap
+# ──────────────────────────────────────────────────────────────
+# Artifact is now at /tmp/codedeploy_artifact. We stop PM2 here
+# (NOT in ApplicationStop) to minimize downtime — the app was
+# running while files were being prepared and copied.
 #
-# At this point, CodeDeploy has already copied the built artifact
-# into httpdocs_temp. Now we:
-#   6. Move current httpdocs → releases/backup_TIMESTAMP
-#   7. Move httpdocs_temp → httpdocs
+# Downtime window: from PM2 stop → to PM2 start (in ApplicationStart)
 # ──────────────────────────────────────────────────────────────
 
-BASE_DIR="/srv/aitrillion.com/subdomains/ai-dev-front2"
+# Load deployment config from NEW artifact
+CONFIG_FILE="/tmp/codedeploy_artifact/deployment_config.sh"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+else
+    echo "ERROR: deployment_config.sh not found in artifact!"
+    exit 1
+fi
 
-# ── Step 6: Rotate old build ──
-echo "=== [Step 6] Rotating old build ==="
+echo "=== Deploying: $ENV_NAME | Port: $APP_PORT | Path: $BASE_DIR ==="
+
+# Ensure directories exist (important for first deployment)
+mkdir -p "$BASE_DIR/releases"
+mkdir -p "$BASE_DIR/.pm2"
+
+# ── STOP PM2 (downtime starts here) ──
+echo "=== Stopping PM2: $ENV_NAME ==="
+
+export PM2_HOME="$BASE_DIR/.pm2"
+pm2 stop "$ENV_NAME" || true
+pm2 delete "$ENV_NAME" || true
+echo "PM2 stopped."
+
+# ── Rotate old build ──
+echo "=== Rotating old build ==="
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FOLDER="$BASE_DIR/releases/backup_$TIMESTAMP"
@@ -26,9 +47,15 @@ else
     echo "No previous httpdocs folder found. Skipping backup."
 fi
 
-# ── Step 7: Move new build into place ──
-echo "=== [Step 7] Deploying new build ==="
+# ── Move new build into place ──
+echo "=== Deploying new build ==="
 
-mv "$BASE_DIR/httpdocs_temp" "$BASE_DIR/httpdocs"
+mv /tmp/codedeploy_artifact "$BASE_DIR/httpdocs"
 
-echo "New build deployed to httpdocs successfully."
+# Save deployment config for current and future use
+# - env-specific: persistent, prevents conflicts between environments
+# - current: for ApplicationStart to read (CodeDeploy runs one deploy at a time per EC2)
+cp "$BASE_DIR/httpdocs/deployment_config.sh" "/tmp/deployment_config_${ENV_NAME}.sh"
+cp "$BASE_DIR/httpdocs/deployment_config.sh" "/tmp/deployment_config_current.sh"
+
+echo "New build deployed to $BASE_DIR/httpdocs"

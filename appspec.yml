@@ -2,54 +2,41 @@ version: 0.0
 os: linux
 
 # ──────────────────────────────────────────────────────────────
-# AWS CodeDeploy AppSpec for aitrillion-appv2
+# AWS CodeDeploy AppSpec — Parameterized for All Environments
 # ──────────────────────────────────────────────────────────────
-# EC2 Folder Structure:
-#   /home/ec2-user/
-#   ├── httpdocs/          ← Running production application
-#   ├── httpdocs_temp/     ← Temporary folder (CodeDeploy copies here)
-#   └── releases/          ← Backup folder with timestamped backups
+# Deployment flow (optimized for minimal downtime):
 #
-# ⚠️  IMPORTANT: Update /home/ec2-user below to match your actual
-#     base directory on EC2 if it's different.
+#   1. ApplicationStop   → No-op (app keeps running)
+#   2. BeforeInstall     → Prepares directories, cleans temp files
+#   3. (CodeDeploy copies artifact to /tmp/codedeploy_artifact)
+#   4. AfterInstall      → Stops PM2, backs up httpdocs, swaps new build
+#   5. ApplicationStart  → npm rebuild, starts PM2, cleans old backups
+#
+# PM2 stops only at step 4 right before the swap — app stays
+# running during steps 1-3 while files are being prepared and copied.
 # ──────────────────────────────────────────────────────────────
 
 files:
-  # CodeDeploy copies the built artifact to httpdocs_temp first
-  # (NOT directly to httpdocs — we swap it in AfterInstall)
   - source: /
-    destination: /srv/aitrillion.com/subdomains/ai-dev-front2/httpdocs_temp
-
-permissions:
-  - object: /srv/aitrillion.com/subdomains/ai-dev-front2/httpdocs_temp
-    owner: ai-dev-front2
-    group: ai-dev-front2
-    mode: 755
-    type:
-      - directory
-      - file
+    destination: /tmp/codedeploy_artifact
 
 hooks:
-  # ── Step 5 of your script: Stop PM2 ──
   ApplicationStop:
-    - location: appspec-script/application_stop.sh
-      timeout: 60
-      runas: ai-dev-front2
+    - location: appspec-scrip/application_stop.sh
+      timeout: 30
+      runas: ai-front
 
-  # ── Step 4 of your script: Prepare temp directory ──
   BeforeInstall:
-    - location: appspec-script/before_install.sh
+    - location: appspec-scrip/before_install.sh
       timeout: 60
-      runas: ai-dev-front2
+      runas: ai-front
 
-  # ── Steps 6 & 7 of your script: Backup old → Swap new ──
   AfterInstall:
-    - location: appspec-script/after_install.sh
+    - location: appspec-scrip/after_install.sh
       timeout: 300
-      runas: ai-dev-front2
+      runas: ai-front
 
-  # ── Steps 8 & 9 of your script: Start PM2 + Cleanup backups ──
   ApplicationStart:
-    - location: appspec-script/application_start.sh
+    - location: appspec-scrip/application_start.sh
       timeout: 120
-      runas: ai-dev-front2
+      runas: ai-front
