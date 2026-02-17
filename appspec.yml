@@ -24,19 +24,19 @@ hooks:
   ApplicationStop:
     - location: appspec-scrip/application_stop.sh
       timeout: 30
-      runas: ai-front
+      runas: root
 
   BeforeInstall:
     - location: appspec-scrip/before_install.sh
       timeout: 60
-      runas: ai-front
+      runas: root
 
   AfterInstall:
     - location: appspec-scrip/after_install.sh
       timeout: 300
-      runas: ai-front
+      runas: root
 
   ApplicationStart:
     - location: appspec-scrip/application_start.sh
       timeout: 120
-      runas: ai-front
+      runas: root
