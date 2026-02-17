@@ -22,21 +22,21 @@ files:
 
 hooks:
   ApplicationStop:
-    - location: appspec-scrip/application_stop.sh
+    - location: appspec-script/application_stop.sh
       timeout: 30
       runas: root
 
   BeforeInstall:
-    - location: appspec-scrip/before_install.sh
+    - location: appspec-script/before_install.sh
       timeout: 60
       runas: root
 
   AfterInstall:
-    - location: appspec-scrip/after_install.sh
+    - location: appspec-script/after_install.sh
       timeout: 300
       runas: root
 
   ApplicationStart:
-    - location: appspec-scrip/application_start.sh
+    - location: appspec-script/application_start.sh
       timeout: 120
       runas: root
